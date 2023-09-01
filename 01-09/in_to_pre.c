@@ -58,61 +58,53 @@ int priority(char ch){
 	}
 	return -1;
 }
-void in_to_post(char arr[]){
+void in_to_pre(char arr[]){
 	stack s;
 	init_stack(&s);
-	// iterating the expression
-	for(int i = 0; arr[i]; i++){
-		// agar variable mill jaye
-		// to usse print kardo
+	stack exp;
+	init_stack(&exp);
+	for(int i = strlen(arr) - 1; i >= 0; i--){
 		if(is_alpnum(arr[i])){
-			printf("%c", arr[i]);
+			push(&exp, arr[i]);
 		}
-		// ignore white spaces
-		else if(arr[i] == ' ' || arr[i] == '\t') continue;
-		// if we have an opening bracket
-		// simply push it in the stack
-		else if(arr[i] == '('){
+		else if(arr[i] == ' ' || arr[i] == '\t'){
+			continue;
+		}
+		else if(arr[i] == ')'){
 			push(&s, arr[i]);
 		}
-		// if we have closing bracket
-		else if(arr[i] == ')'){
-			// remove operators from the stack
-			// till we find opening bracket on top
-			while(top(&s) != '('){
-				printf("%c", top(&s));
+		else if(arr[i] == '('){
+			while(top(&s) != ')'){
+				push(&exp, top(&s));
 				pop(&s);
 			}
-			// remove the opening bracket as well
 			pop(&s);
 		}
-		// if we have an operator
 		switch(arr[i]){
 		case '+':
 		case '-':
 		case '*':
 		case '/':
 		case '^':
-			// remove all the operators from stack
-			// that have a priority greater than
-			// the current operator
-			while(!empty(&s) && priority(top(&s)) >= priority(arr[i])){
-				printf("%c", top(&s));
+			while(!(empty(&s) || priority(top(&s)) < priority(arr[i]))){
+				push(&exp, top(&s));
 				pop(&s);
 			}
-			// finally push the current operator on the stack
 			push(&s, arr[i]);
 		}
 	}
-	// remove all the operators from the stack
 	while(!empty(&s)){
-		printf("%c", top(&s));
+		push(&exp, top(&s));
 		pop(&s);
+	}
+	while(!empty(&exp)){
+		printf("%c", top(&exp));
+		pop(&exp);
 	}
 	printf("\n");
 }
 int main(){
 	char arr[] = "a+b*c/(d-e)"; 
-	in_to_post(arr);
+	in_to_pre(arr);
 	return 0;
 }
